@@ -1,0 +1,127 @@
+sources:
+  - name: demo_src
+    database: dwh_flights
+    schema: demo_src
+    description: Данные из БД перелетов
+    tables:
+      - name: aircrafts
+        description: Модели самолетов
+        columns:
+          - name: aircraft_code
+            description: Код самолета
+            # type: VARCHAR(20)
+          - name: model
+            description: Модель самолета
+            # type: VARCHAR(100)
+          - name: "range"
+            description: Диапазон полетов
+            # type: VARCHAR(50)
+      - name: airports
+        description: Аэропорты
+        columns: 
+          - name: airport_code
+            description: Код аэропорта
+            type: VARCHAR(20)
+          - name: coordinates
+            description: Координаты аэропорта
+            type: VARCHAR(100)
+          - name: timezone
+            description: Часовой пояс
+      - name: seats
+        description: Сидения в самолетах
+        columns:
+          - name: aircraft
+            description: Модель самолета
+          - name: seat_no
+            description: Номер сидения
+          - name: fare_conditions
+            description: доп. условия            
+      - name: bookings
+        description: Заказы клиентов
+        columns:
+          - name: book_ref
+            description: Идентификатор заказа
+          - name: book_date
+            description: Дата создания заказа
+            type: DATE
+          - name: total_amount
+            description: Общая сумма заказа
+            type: DECIMAL(10, 2)
+        freshness: 
+            warn_after:
+              count: 600000
+              period: hour
+            error_after:
+              count: 10000
+              period: day
+            # filter: current_timestamp::date - book_date::date < 30000 # необязательно, только если для ускорения проверки
+        loaded_at_field: book_date::timestamp
+      - name: boarding_passes
+        description: Посадочные талоны
+        columns:
+          - name: ticket_no
+            description: Номер билета
+          - name: flight_id
+            description: Идентификатор рейса
+          - name: boarding_no
+            description: Номер посадочного талона
+          - name: seat_no
+            description: Номер сидения
+      - name: flights
+        description: Рейсы
+        columns:
+          - name: flight_id
+            description: Идентификатор рейса
+          - name: flight_no
+            description: Номер рейса
+          - name: scheduled_departure
+            description: Планируемое время вылета
+          - name: scheduled_arrival
+            description: Планируемое время прибытия
+          - name: departure_airport
+            description: Код аэропорта вылета
+          - name: arrival_airport
+            description: Код аэропорта прибытия
+          - name: "status"
+            description: Статус рейса
+          - name: aircraft_code
+            description: Код самолета, выполняющего рейс
+          - name: actual_departure
+            description: Фактическое время вылета
+          - name: actual_arrival
+            description: Фактическое время прибытия
+        freshness: 
+            warn_after:
+              count: 600000
+              period: hour
+            error_after:
+              count: 10000
+              period: day
+            # filter: current_timestamp::date - book_date::date < 30000 # необязательно, только если для ускорения проверки
+        loaded_at_field: actual_departure::timestamp
+      - name: ticket_flights
+        description: Перелеты в билете
+        columns:
+          - name: ticket_no
+            description: Уникальный номер билета
+          - name: book_ref
+            description: Идентификатор заказа
+          - name: passenger_id 
+            description: Уникальный идентификатор пассажира
+          - name: passenger_name 
+            description: ФИО пассажира
+          - name: contact_data
+            description: Контактная информация пассажира
+      - name: tickets
+        description: Билеты, выписанные на пассажиров в рамках бронирования.
+        columns:
+          - name: ticket_no
+            description: Уникальный номер билета.
+          - name: book_ref
+            description: Идентификатор заказа, к которому относится билет.
+          - name: passenger_id
+            description: Уникальный идентификатор пассажира.
+          - name: passenger_name
+            description: ФИО пассажира.
+          - name: contact_data
+            description: Контактная информация пассажира.
